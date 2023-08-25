@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Municipios de Argentina</title>
+</head>
+
+<body>
+    <header>
+        <h1>Municipios de Argentina</h1>
+    </header>
+    <form class="">
+        <div class="input">
+            <p>Provincia</p>
+            <select class="input__provincia">
+                <option value="0">Seleccione una provincia</option>
+            </select>
+        </div>
+        <div class="input">
+            <select class="input__municipio">
+                <option value="0">Seleccione un municipio</option>
+            </select>
+        </div>
+    </form>
+</body>
+
+<script>
+    const cargarPcias = async(select) =>
+        fetch("https://apis.datos.gob.ar/georef/api/provincias?campos=id,nombre")
+        .then(res => res.json())
+        .then(res => {
+            res.provincias.forEach(({
+                id,
+                nombre
+            }) => {
+                select.appendChild(new Option(nombre, id))
+            })
+        })
+        .catch(err => alert("Ocurrio un Error." + err))
+
+    const cargarMunicipios = async(codePcia, select) =>
+        fetch(`https://apis.datos.gob.ar/georef/api/municipios?provincia=${codePcia}&max=100&campos=id,nombre`)
+        .then(res => res.json())
+        .then(res => {
+            res.municipios.forEach(({
+                id,
+                nombre
+            }) => {
+                select.appendChild(new Option(nombre, id))
+            })
+        })
+        .catch(err => alert("Ocurrio un Error." + err))
+
+    const borrarMunicipios = select => {
+        while (select.options.length > 1)
+            select.removeChild(select.options[1]);
+    }
+
+    const selectPcia = document.querySelector(".input__provincia");
+    const selectMuni = document.querySelector(".input__municipio");
+    cargarPcias(selectPcia);
+    selectPcia.addEventListener("change", e => {
+        if (selectPcia.selectedIndex != 0) {
+            borrarMunicipios(selectMuni);
+            cargarMunicipios(selectPcia.selectedOptions[0].value, selectMuni);
+        }
+    });
+</script>
+
+</html>
